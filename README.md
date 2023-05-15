@@ -36,3 +36,7 @@ FontAwesome for the icon logo. Bulk mail.
 ## Security
 
 If there are any security concerns please contact me on GitHub through email or personal message.
+
+## Functionality
+
+![img/functionality.mp4]
