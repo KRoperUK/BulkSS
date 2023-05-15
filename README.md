@@ -1,5 +1,9 @@
 # BulkSS
 
+## Warning
+
+>This is an early release project. This code is not tested properly, may not function correctly. Use with caution. You are responsible for any errors that arise from using this project.
+
 ## About
 
 One issue I've found with StaffSavvy is that it takes ages to fill in multiple shift offers. This Chrome Extension solves that.
@@ -25,7 +29,7 @@ For now, this application only supports the University of Birmingham - Guild of 
 
 Please fork the repo.
 
-## Acknowledgements
+## Acknowledgements
 
 FontAwesome for the icon logo. Bulk mail.
 
