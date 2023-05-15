@@ -39,4 +39,4 @@ If there are any security concerns please contact me on GitHub through email or 
 
 ## Functionality
 
-![img/functionality.mp4]
+https://github.com/KRoperUK/BulkSS/assets/13541920/970ae50e-999f-46af-a9a5-f1fa33a1af11
