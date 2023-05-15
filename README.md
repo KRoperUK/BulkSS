@@ -17,12 +17,17 @@ Once you click ```Process``` it will run the ajax requests in the background. Wa
 - [ ] Less jank needed
 - [ ] Better error handling
 - [ ] Support for other StaffSavvy sites. (e.g. user custom entry / using active tab)
+- [ ] Support for bulk cancelling shifts - should be pretty easy to implement.
 
 For now, this application only supports the University of Birmingham - Guild of Students StaffSavvy.
 
 ## Contributing
 
 Please fork the repo.
+
+## Acknowledgements
+
+FontAwesome for the icon logo. Bulk mail.
 
 ## Security
 
