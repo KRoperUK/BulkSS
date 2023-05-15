@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Bulk Staff Savvy",
+  "description": "Offer for multiple shifts at once.",
+  "version": "1.0",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": "bulkSS-icon.png"
+  },
+  "permissions": ["storage"],
+  "host_permissions": ["https://staff.guildofstudents.com/"],
+  "content_scripts": [
+    {
+      "matches": ["https://staff.guildofstudents.com/shifts/available"],
+      "js": ["loader.js"]
+    }
+    ],
+  "web_accessible_resources": [{
+    "resources": ["ShiftTaker.js"],
+    "matches": ["<all_urls>"]
+    }]
+}
