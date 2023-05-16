@@ -3,6 +3,8 @@ wantedShifts = [];
 
 var i;
 
+allShifts = [];
+
 
 async function automateTake(shiftInt) {
     // confirmShift(shiftInt);
@@ -156,11 +158,16 @@ function onInit() {
     
     tableResults = document.getElementsByTagName("tr");
     for (tableResult of tableResults) {
+        shift = {};
+        shift.id = tableResult.getElementsByTagName("a")[1].href.match(/\d+/)[0];
+        shift.date = tableResult.getElementsByTagName("td")[0].getElementsByTagName('strong')[0].innerText;
+        // shift.time = tableResult.getElementsByTagName("td")[1].innerText;
         if (tableResult.getElementsByTagName("span").length < 1) {
+            shift.type="available";
             try {
-                const shiftNumber = tableResult.getElementsByTagName("a")[1].href.match(/\d+/)[0];
+
                 newButton = document.createElement("a");
-                newButton.id="takeShift-" + shiftNumber;
+                newButton.id="takeShift-" + shift.id;
                 newButton.className = "button";
                 newButton.style.width = "6rem";
                 newButton.style.backgroundColor = "green";
@@ -172,7 +179,11 @@ function onInit() {
             } catch (error) {
                 console.log(error);
             }
+        } else {
+            shift.type="offered";
         }
+        allShifts.push(shift);
+
     }
     restoreWantedShifts();
 
