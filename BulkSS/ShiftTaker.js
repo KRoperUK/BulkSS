@@ -7,45 +7,43 @@ allShifts = [];
 
 
 async function automateTake(shiftInt) {
+    let shift = allShifts.filter(shift => shift.id == shiftInt)[0];
     // confirmShift(shiftInt);
     // takeShift(shiftInt);
     // location.href = shiftURL;
-    const response = await fetch(`https://staff.guildofstudents.com/ajax/list-covershifts.php?take=${shiftInt}&type=get`);
-    const data = await response.text();
-    console.log(`Took shift ${shiftInt}`);
-    wantedAcceptFromDom(shiftInt);
-    return data;
+    if (shift.type == "available") {
+        const response = await fetch(`https://staff.guildofstudents.com/ajax/list-covershifts.php?take=${shiftInt}&type=get`);
+        const data = await response.text();
+        console.log(`Took shift ${shiftInt}`);
+        wantedAcceptFromDom(shiftInt);
+        return data;
+    } else if (shift.type == "offered") {
+        const response = await fetch(`https://staff.guildofstudents.com/ajax/list-covershifts.php?canceloffer=${shiftInt}`);
+        const data = await response.text();
+        console.log(`Cancelled shift ${shiftInt}`);
+        wantedAcceptFromDom(shiftInt);
+        return data;
+    } else {
+        return null;
+    }
 }
 
 function wantedAddToDom(shiftInt) {
-    document.querySelectorAll(`#takeShift-${shiftInt}`)[1].style.backgroundColor = "red";
-    document.querySelectorAll(`#takeShift-${shiftInt}`)[1].innerHTML = "Remove from List";
+    document.querySelectorAll(`#takeShift-${shiftInt}`)[0].style.backgroundColor = "red";
+    document.querySelectorAll(`#takeShift-${shiftInt}`)[0].innerHTML = "Remove from List";
 
 }
 
-// function confirmShift(shift){
-    // $('#dialog').load('/modal/confirm_take_shift.php', {'shift':shift}).sb_dialog();
-// }
-
-// function takeShift(shift){
-//     $('#dialog').foundation('close');
-    
-//     $('#covershifts').html('<div class="callout warning">Please wait... confirming shift and loading any other shifts you can take...</div>').load('/ajax/list-covershifts.php',{'take':shift, type:'get'}, function(response, status, xhr){
-           
-
-//         }
-//       );
-//   }
-
 function wantedRemoveFromDom(shiftInt) {
-    document.querySelectorAll(`#takeShift-${shiftInt}`)[1].style.backgroundColor = "green";
-    document.querySelectorAll(`#takeShift-${shiftInt}`)[1].innerHTML = "Add to List";
+    let shift = allShifts.filter(shift => shift.id == shiftInt)[0];
+    document.querySelectorAll(`#takeShift-${shiftInt}`)[0].style.backgroundColor = (shift.type == "available" ? "green" : "red");
+    document.querySelectorAll(`#takeShift-${shiftInt}`)[0].innerHTML = (shift.type == "available" ? "Add to List" : "Add to Cancel List");
 
 }
 function wantedAcceptFromDom(shiftInt) {
-    document.querySelectorAll(`#takeShift-${shiftInt}`)[1].style.backgroundColor = "grey";
-    document.querySelectorAll(`#takeShift-${shiftInt}`)[1].setAttribute("disabled", "disabled");
-    document.querySelectorAll(`#takeShift-${shiftInt}`)[1].innerHTML = "Accepted";
+    document.querySelectorAll(`#takeShift-${shiftInt}`)[0].style.backgroundColor = "grey";
+    document.querySelectorAll(`#takeShift-${shiftInt}`)[0].setAttribute("disabled", "disabled");
+    document.querySelectorAll(`#takeShift-${shiftInt}`)[0].innerHTML = "Accepted";
     
 }
 
@@ -89,6 +87,28 @@ function restoreWantedShifts() {
 
     }
 }
+function clearWantedShifts() {
+    if (localStorage.getItem("wantedShifts") != null) {
+        wantedShifts = JSON.parse(localStorage.getItem("wantedShifts"));
+        localStorage.setItem("wantedShifts", JSON.stringify([]));
+
+        for (wantedShift of wantedShifts) {
+            try {
+                wantedRemoveFromDom(wantedShift);
+            } catch (error) {
+                console.log(`[ERROR] Could not restore wanted shift: ${wantedShift}, ${error} `);
+            }
+        }
+
+        wantedShifts = [];
+
+        console.log("Restored wanted shifts");
+        console.log(wantedShifts);
+        document.getElementById("progress").innerText = `${wantedShifts.length} shifts selected.`;
+
+
+    }
+}
 
 function saveWantedShifts() {
     localStorage.setItem("wantedShifts", JSON.stringify(wantedShifts));
@@ -120,15 +140,15 @@ async function processWantedShifts() {
 
 function onInit() {
     
-    saveButton = document.createElement("a");
-    saveButton.id = "saveButton";
-    saveButton.className = "button";
-    saveButton.style.marginLeft = "1rem";
-    saveButton.style.width = "6rem";
-    saveButton.style.height = "3rem";
-    saveButton.style.backgroundColor = "green";
-    saveButton.href = `javascript:saveWantedShifts()`;
-    saveButton.innerText = "Save List";
+    clearButton = document.createElement("a");
+    clearButton.id = "clearButton";
+    clearButton.className = "button";
+    clearButton.style.marginLeft = "1rem";
+    clearButton.style.width = "6rem";
+    clearButton.style.height = "3rem";
+    clearButton.style.backgroundColor = "grey";
+    clearButton.href = `javascript:clearWantedShifts()`;
+    clearButton.innerText = "Clear List";
     
     processButton = document.createElement("a");
     processButton.id = "processButton";
@@ -151,6 +171,7 @@ function onInit() {
     progressSpan.style.padding = "0.5rem";
     
     // document.getElementsByClassName('cell small-12')[3].getElementsByTagName('h1')[0].appendChild(saveButton);
+    document.getElementsByClassName('cell small-12')[3].getElementsByTagName('h1')[0].appendChild(clearButton);
     document.getElementsByClassName('cell small-12')[3].getElementsByTagName('h1')[0].appendChild(processButton);
     document.getElementsByClassName('cell small-12')[3].getElementsByTagName('h1')[0].appendChild(progressSpan);
 
@@ -158,31 +179,44 @@ function onInit() {
     
     tableResults = document.getElementsByTagName("tr");
     for (tableResult of tableResults) {
+        // For each row in the table
         shift = {};
-        shift.id = tableResult.getElementsByTagName("a")[1].href.match(/\d+/)[0];
-        shift.date = tableResult.getElementsByTagName("td")[0].getElementsByTagName('strong')[0].innerText;
-        // shift.time = tableResult.getElementsByTagName("td")[1].innerText;
-        if (tableResult.getElementsByTagName("span").length < 1) {
-            shift.type="available";
+        if(tableResult.getAttribute("data-shift")) {
+            // If the talbe row has a shift id
+            shift.id = tableResult.getAttribute("data-shift");
+            console.log(tableResult);
+            // shift.id = tableResult.getElementsByTagName("a")[1].href.match(/\d+/)[0];
+            shift.date = tableResult.getElementsByTagName("td")[0].innerText;
+            shift.hours = tableResult.getElementsByTagName("td")[1].innerText;
+            shift.role = tableResult.getElementsByTagName("td")[3].innerText;
+            // shift.time = tableResult.getElementsByTagName("td")[1].innerText;
+            // If the table does not have a span
+            if (tableResult.getElementsByTagName("span").length > 1) {
+                if (tableResult.getElementsByTagName("span")[0].innerText == "Offered to work") {
+                    shift.type="offered";
+                }
+            } else if (tableResult.getElementsByTagName("span").length < 1) {
+                shift.type="available";
+            } else {
+                shift.type="offered";
+            }
             try {
 
                 newButton = document.createElement("a");
                 newButton.id="takeShift-" + shift.id;
                 newButton.className = "button";
                 newButton.style.width = "6rem";
-                newButton.style.backgroundColor = "green";
+                newButton.style.backgroundColor = (shift.type == "available" ? "green" : "red");
                 
-                newButton.href=`javascript:addToWanted(${shiftNumber})`;
-                newButton.innerText = "Add to List";
+                newButton.href=`javascript:addToWanted(${shift.id})`;
+                newButton.innerText = (shift.type == "available" ? "Add to List" : "Add to Cancel List");
                 
                 tableResult.getElementsByClassName("button-group stacked-for-small")[0].appendChild(newButton);
             } catch (error) {
                 console.log(error);
             }
-        } else {
-            shift.type="offered";
+            allShifts.push(shift);
         }
-        allShifts.push(shift);
 
     }
     restoreWantedShifts();
