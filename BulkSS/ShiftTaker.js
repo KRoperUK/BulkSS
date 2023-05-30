@@ -12,17 +12,23 @@ async function automateTake(shiftInt) {
     // takeShift(shiftInt);
     // location.href = shiftURL;
     if (shift.type == "available") {
-        const response = await fetch(`https://staff.guildofstudents.com/ajax/list-covershifts.php?take=${shiftInt}&type=get`);
-        const data = await response.text();
-        console.log(`Took shift ${shiftInt}`);
-        wantedAcceptFromDom(shiftInt);
-        return data;
+        console.log(`[AutomatedTake] Taking shift ${shiftInt}`);
+        const takePromise = fetch(`https://staff.guildofstudents.com/ajax/list-covershifts.php?take=${shiftInt}`);
+        takePromise.then((response) => {
+            wantedAcceptFromDom(shiftInt);
+            console.log(`Took shift ${shiftInt}`);
+            console.log(response);
+            return response.text();
+        });
     } else if (shift.type == "offered") {
-        const response = await fetch(`https://staff.guildofstudents.com/ajax/list-covershifts.php?canceloffer=${shiftInt}`);
-        const data = await response.text();
-        console.log(`Cancelled shift ${shiftInt}`);
-        wantedAcceptFromDom(shiftInt);
-        return data;
+        console.log(`[AutomatedTake] Cancelling shift ${shiftInt}`);
+        const cancelPromise = fetch(`https://staff.guildofstudents.com/ajax/list-covershifts.php?canceloffer=${shiftInt}`);
+        cancelPromise.then((response) => {
+            wantedAcceptFromDom(shiftInt);
+            console.log(`Cancelled shift ${shiftInt}`);
+            console.log(response);
+            return response.text();
+        });
     } else {
         return null;
     }
@@ -52,12 +58,12 @@ function addToWanted(shiftInt) {
         console.log(`Removing shift ${shiftInt}`);
         wantedShifts.splice(wantedShifts.indexOf(shiftInt), 1);
         wantedRemoveFromDom(shiftInt);
-        console.log(wantedShifts);
+        // console.log(wantedShifts);
     } else {
         console.log(`Adding shift ${shiftInt}`);
         wantedShifts.push(shiftInt);
         wantedAddToDom(shiftInt);
-        console.log(wantedShifts);
+        // console.log(wantedShifts);
     }
     
     document.getElementById("progress").innerText = `${wantedShifts.length} shifts selected.`;
@@ -74,14 +80,24 @@ function restoreWantedShifts() {
 
         for (wantedShift of wantedShifts) {
             try {
-                wantedAddToDom(wantedShift);
+                if (allShifts.filter(shift => shift.id == wantedShift).length > 0) {
+                    // Ensure saved wantedShift still exists
+                    wantedAddToDom(wantedShift);
+                } else {
+                    // If it doesn't exist, remove it from the list and save again
+                    wantedShifts.splice(wantedShifts.indexOf(wantedShift), 1);
+                    console.log(`[INFO] Could not restore wanted shift: ${wantedShift}, shift no longer exists`);
+                }
             } catch (error) {
                 console.log(`[ERROR] Could not restore wanted shift: ${wantedShift}, ${error} `);
             }
         }
 
+        saveWantedShifts();
+
+
         console.log("Restored wanted shifts");
-        console.log(wantedShifts);
+        // console.log(wantedShifts);
         document.getElementById("progress").innerText = `${wantedShifts.length} shifts selected.`;
 
 
@@ -132,7 +148,7 @@ async function processWantedShifts() {
         wantedShifts.splice(wantedShifts.indexOf(processedShift), 1);
     }
     saveWantedShifts();
-    document.getElementById("progress").innerHTML = `Processed`;
+    document.getElementById("progress").innerHTML = `Processed. Wait for all buttons to become Accepted`;
     console.log(`Processed wanted shift ${wantedShift}`);
 
 }
@@ -184,7 +200,7 @@ function onInit() {
         if(tableResult.getAttribute("data-shift")) {
             // If the talbe row has a shift id
             shift.id = tableResult.getAttribute("data-shift");
-            console.log(tableResult);
+            // console.log(tableResult);
             // shift.id = tableResult.getElementsByTagName("a")[1].href.match(/\d+/)[0];
             shift.date = tableResult.getElementsByTagName("td")[0].innerText;
             shift.hours = tableResult.getElementsByTagName("td")[1].innerText;
