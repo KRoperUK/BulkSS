@@ -2,7 +2,7 @@
 
 ## Warning
 
->This is an early release project. This code is not tested properly, may not function correctly. Use with caution. You are responsible for any errors that arise from using this project.
+**This is an early release project. This code is not tested properly, may not function correctly. Use with caution. You are responsible for any errors that arise from using this project.**
 
 ## About
 
@@ -39,6 +39,7 @@ Once you click ```Process``` it will run the ajax requests in the background. Wa
 - You can always use the normal offer / withdraw offer buttons.
 - You can disable / uninstall the extension at any time.
 - Currently, StaffSavvy changes the shift table view when the screen width is narrow. The ```Add to List``` buttons are currently only visible when in the wide view setting as shown in the demonstration video.
+- After processing, it may take upto 2 minutes for the changes to be processed on the StaffSavvy backend. Please wait 45s to 2 minutes after ```Processed``` is shown before retrying.
 
 ## Issues
 
@@ -64,3 +65,8 @@ If there are any security concerns please contact me on GitHub through email or 
 ## Functionality
 
 https://github.com/KRoperUK/BulkSS/assets/13541920/970ae50e-999f-46af-a9a5-f1fa33a1af11
+
+
+https://github.com/KRoperUK/BulkSS/assets/13541920/6f723028-3d40-4620-92c4-c416ca041b31
+
+
